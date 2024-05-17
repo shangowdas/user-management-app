@@ -9,6 +9,7 @@ import { UserManagementService } from '../../service/user-management.service';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
+import { ApiCallBack } from '../../http/callback/api-callback';
 
 @Component({
   selector: 'app-home',
@@ -17,7 +18,7 @@ import { TableModule } from 'primeng/table';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, ApiCallBack {
   public updateUser: UpdateUserRequestDto = new UpdateUserRequestDto;
   public selectedUser: GetUsersDto = new GetUsersDto;
   addUserForm!: FormGroup;
@@ -29,6 +30,7 @@ export class HomeComponent implements OnInit {
     public userMgmtService: UserManagementService,
     public formBuilder: FormBuilder
   ) {}
+  
 
   ngOnDestroy(): void {
     throw new Error('Method not implemented.');
@@ -36,9 +38,9 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.addUserForm = this.formBuilder.group({
-      name: ['', Validators.required],
-      username: ['', Validators.required],
-      password: ['', Validators.required],
+      name: [''],
+      username: [''],
+      password: [''],
       email: [''],
       role: [''],
       phone: [''],
@@ -59,17 +61,7 @@ export class HomeComponent implements OnInit {
     params = params.append('name', searchName=== undefined || searchName == '' ? '' : searchName);
     params = params.append('username', '');
     params = params.append('role', '');
-    this.userMgmtService.getUsers(params).subscribe(
-      (response: any) => {
-        this.userMgmtService.users = response.users;
-        console.log(this.userMgmtService.users);
-      },
-      (error: HttpErrorResponse) => {
-        // alert(error.message);
-        this.toastIt = true;
-        this.toastMessage = error?.message == null ? 'Failed' : error.message;
-      }
-    );
+    this.userMgmtService.getUsers(this,params);
   }
 
   public onAddUser(): void {
@@ -82,20 +74,21 @@ export class HomeComponent implements OnInit {
       addUser.phone = this.addUserForm?.value?.phone;
       addUser.role = this.addUserForm?.value?.role;
 
-      this.userMgmtService.addUser(addUser).subscribe(
-        (response: any) => {
-          console.log(response);
-          this.getUsers();
-          this.addUserForm.reset();
-        },
-        (error: HttpErrorResponse) => {
-          alert(error.message);
-          this.addUserForm.reset();
-        }
-      );
-    } else {
-      this.toastMessage = 'Please enter reqired fields.';
-      // alert('');
+      this.userMgmtService.addUser(this, addUser)
+    //   .subscribe(
+    //     (response: any) => {
+    //       console.log(response);
+    //       this.getUsers();
+    //       this.addUserForm.reset();
+    //     },
+    //     (error: HttpErrorResponse) => {
+    //       alert(error.message);
+    //       this.addUserForm.reset();
+    //     }
+    //   );
+    // } else {
+    //   this.toastMessage = 'Please enter reqired fields.';
+    //   // alert('');
     }
   }
 
@@ -154,4 +147,24 @@ export class HomeComponent implements OnInit {
   }
 
   openAddUserDialog(): void {}
+
+  onResult(data: any, type: any, other?: any): void {
+    switch (type) {
+      case 'get - /user-management/v1/user':
+        this.userMgmtService.users = data.users
+
+        break;
+        case 'post - /user-management/v1/user':
+        this.getUsers();
+          this.addUserForm.reset();
+    break
+    }
+  }
+  onError(err: any, type: any, other?: any): void {
+    switch (type) {
+      case 'get - /user-management/v1/user':
+
+        break;
+    }
+  }
 }
