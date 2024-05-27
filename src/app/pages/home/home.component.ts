@@ -10,40 +10,52 @@ import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ApiCallBack } from '../../http/callback/api-callback';
+import { DialogModule } from "primeng/dialog";
+import { AppUtils } from '../../common/app-utils';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterOutlet, ReactiveFormsModule, FormsModule, CommonModule, TableModule],
+  imports: [RouterOutlet, ReactiveFormsModule, FormsModule, CommonModule, TableModule, DialogModule, ToastModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
+  providers: [MessageService]
+
 })
 export class HomeComponent implements OnInit, ApiCallBack {
   public updateUser: UpdateUserRequestDto = new UpdateUserRequestDto;
   public selectedUser: GetUsersDto = new GetUsersDto;
   addUserForm!: FormGroup;
-
+  buttonIsLoading = false
   searchUserForm!: FormGroup;
   toastMessage = '';
   toastIt = false;
+  visible = false
   constructor(
     public userMgmtService: UserManagementService,
-    public formBuilder: FormBuilder
-  ) {}
-  
+    public formBuilder: FormBuilder,
+    public messageService: MessageService,
+  ) { }
+
 
   ngOnDestroy(): void {
     throw new Error('Method not implemented.');
   }
 
+  openDialog(): void {
+    this.visible = true
+  }
+
   ngOnInit() {
     this.addUserForm = this.formBuilder.group({
-      name: [''],
-      username: [''],
-      password: [''],
-      email: [''],
-      role: [''],
-      phone: [''],
+      name: ['', Validators.required],
+      username: ['', Validators.required],
+      password: ['', Validators.required],
+      email: ['', Validators.required],
+      role: ['', Validators.required],
+      phone: ['', Validators.required],
     });
 
     this.searchUserForm = this.formBuilder.group({
@@ -58,14 +70,15 @@ export class HomeComponent implements OnInit, ApiCallBack {
     params = params.append('pageSize', 100);
     params = params.append('pageNo', 0);
     params = params.append('sortBy', '');
-    params = params.append('name', searchName=== undefined || searchName == '' ? '' : searchName);
+    params = params.append('name', searchName === undefined || searchName == '' ? '' : searchName);
     params = params.append('username', '');
     params = params.append('role', '');
-    this.userMgmtService.getUsers(this,params);
+    this.userMgmtService.getUsers(this, params);
   }
 
   public onAddUser(): void {
     if (this.addUserForm?.valid) {
+      this.buttonIsLoading = true
       let addUser: AddUserRequestDto = new AddUserRequestDto();
       addUser.name = this.addUserForm?.value?.name;
       addUser.username = this.addUserForm?.value?.username;
@@ -75,20 +88,25 @@ export class HomeComponent implements OnInit, ApiCallBack {
       addUser.role = this.addUserForm?.value?.role;
 
       this.userMgmtService.addUser(this, addUser)
-    //   .subscribe(
-    //     (response: any) => {
-    //       console.log(response);
-    //       this.getUsers();
-    //       this.addUserForm.reset();
-    //     },
-    //     (error: HttpErrorResponse) => {
-    //       alert(error.message);
-    //       this.addUserForm.reset();
-    //     }
-    //   );
-    // } else {
-    //   this.toastMessage = 'Please enter reqired fields.';
-    //   // alert('');
+      //   .subscribe(
+      //     (response: any) => {
+      //       console.log(response);
+      //       this.getUsers();
+      //       this.addUserForm.reset();
+      //     },
+      //     (error: HttpErrorResponse) => {
+      //       alert(error.message);
+      //       this.addUserForm.reset();
+      //     }
+      //   );
+      // } else {
+      //   this.toastMessage = 'Please enter reqired fields.';
+      //   // alert('');
+    } else {
+      AppUtils.showWarnViaToast(
+        this.messageService,
+        "Please enter required fields"
+      );
     }
   }
 
@@ -142,11 +160,11 @@ export class HomeComponent implements OnInit, ApiCallBack {
     if (container != null) {
       container.appendChild(button);
     }
-    
+
     button.click();
   }
 
-  openAddUserDialog(): void {}
+  openAddUserDialog(): void { }
 
   onResult(data: any, type: any, other?: any): void {
     switch (type) {
@@ -154,10 +172,16 @@ export class HomeComponent implements OnInit, ApiCallBack {
         this.userMgmtService.users = data.users
 
         break;
-        case 'post - /user-management/v1/user':
+      case 'post - /user-management/v1/user':
+        this.buttonIsLoading = false
+        this.visible = false
         this.getUsers();
-          this.addUserForm.reset();
-    break
+        AppUtils.showSuccessViaToast(
+          this.messageService,
+          "User created Successfully"
+        )
+        this.addUserForm.reset();
+        break
     }
   }
   onError(err: any, type: any, other?: any): void {
@@ -165,6 +189,13 @@ export class HomeComponent implements OnInit, ApiCallBack {
       case 'get - /user-management/v1/user':
 
         break;
+      case 'post - /user-management/v1/user':
+        this.buttonIsLoading = false
+        AppUtils.showWarnViaToast(
+          this.messageService,
+          err.error
+        );
+        break
     }
   }
 }

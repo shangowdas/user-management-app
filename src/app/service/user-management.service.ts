@@ -78,4 +78,22 @@ export class UserManagementService {
   public deleteUser(userId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiServerUrl}/delete/user/${userId}`);
   }
+
+  login(
+    callback: ApiCallBack,
+    userName: string,
+    password: string
+  ): void {
+    const apiObject: ApiCallHelper = {} as ApiCallHelper;
+    apiObject.service = '/user-management/v1/user/login/' + userName + "/" + password;
+    apiObject.method = "GET";
+   
+
+    this.apiService.getData(
+      apiObject,
+      callback,
+      'get - /user-management/v1/user/login/',
+      // request
+    );
+  }
 }

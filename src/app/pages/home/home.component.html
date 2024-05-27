@@ -1,117 +1,83 @@
 <header class="bg-primary text-white text-center py-6 col-lg-12">
-    <h1>User Management System</h1>
-    <p>Welcome to our user management platform</p>
-  </header>
-  
-  <div class="container mt-2 col-lg-12">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card p-4">
-          <h2 class="mb-4">Create a New User</h2>
-          <form [formGroup]="addUserForm" (ngsubmit)="onAddUser()">
-            <div class="mb-3">
-              <div class="mb-3">
-                <label for="name" class="form-label" >Name</label>
-                <input
-                  type="name"
-                  class="form-control"
-                  id="name"
-                  formControlName="name"
-                  required
-                />
-              </div>
-              <label for="username" class="form-label">Username</label>
-              <input type="text" class="form-control" formControlName="username" id="username" required />
-            </div>
-            <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
-              <input type="email" class="form-control" id="email" formControlName="email" required />
-            </div>
-            <div class="mb-3">
-              <label for="phone" class="form-label" >Mobile No.</label>
-              <input
-                type="phone"
-                class="form-control"
-                id="phone"
-                formControlName="phone"
-                required
-              />
-            </div>
-            <div class="mb-3">
-              <label for="role" class="form-label" >Role</label>
-              <input
-                type="role"
-                class="form-control"
-                id="role"
-                formControlName="role"
-                required
-              />
-            </div>
-            <div class="mb-3">
-              <label for="password" class="form-label" >Password</label>
-              <input
-                type="password"
-                class="form-control"
-                id="password"
-                formControlName="password"
-                required
-              />
-            </div>
-            <button type="submit" class="btn btn-primary"  (click)="onAddUser()">Create User</button>
-          </form>
+  <h1>User Management System</h1>
+  <p>Welcome to our user management platform</p>
+</header>
+
+<div class="container mt-2 col-lg-12">
+  <div class="row">
+
+    <div class="col-lg-12">
+      <div class="card p-4 mt-2">
+        <h2 class="mb-4">Manage Users</h2>
+
+        <div class="mr-2 mt-2 ml-3" style="justify-content: end">
+          <button type="submit" class="btn btn-primary" (click)="openDialog()">Create User</button>
         </div>
-      </div>
-      <div class="col-lg-12">
-        <div class="card p-4 mt-2">
-          <h2 class="mb-4">Manage Users</h2>
-          <p-table [value]="userMgmtService.users" [tableStyle]="{ 'min-width': '50rem' }">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th>User Name</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Phone No.</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-product>
-                <tr>
-                    <td>{{ product.username }}</td>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.email }}</td>
-                    <td>{{ product.role }}</td>
-                    <td>{{ product.phone }}</td>
-                </tr>
-            </ng-template>
+
+
+        <p-table [value]="userMgmtService.users" [tableStyle]="{ 'min-width': '50rem' }">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>User Name</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Phone No.</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-product>
+            <tr>
+              <td>{{ product.username }}</td>
+              <td>{{ product.name }}</td>
+              <td>{{ product.email }}</td>
+              <td>{{ product.role }}</td>
+              <td>{{ product.phone }}</td>
+            </tr>
+          </ng-template>
         </p-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-dark text-white text-center py-3 mt-5">
+  <p>&copy; 2024 User Management System</p>
+</footer>
+
+
+
+<p-dialog [modal]="true" [style]="{ width: '40vw' }" header="Add User" [(visible)]="visible">
+  <div class="col-lg-12">
+    <div class="card p-4">
+      <h2 class="mb-4">Create a New User</h2>
+      <form [formGroup]="addUserForm" (ngsubmit)="onAddUser()">
+        <div class="mb-3">
+          <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="name" class="form-control" id="name" formControlName="name" required />
+          </div>
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" formControlName="username" id="username" required />
         </div>
-      </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" formControlName="email" required />
+        </div>
+        <div class="mb-3">
+          <label for="phone" class="form-label">Mobile No.</label>
+          <input type="phone" class="form-control" id="phone" formControlName="phone" required />
+        </div>
+        <div class="mb-3">
+          <label for="role" class="form-label">Role</label>
+          <input type="role" class="form-control" id="role" formControlName="role" required />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" formControlName="password" required />
+        </div>
+        <button type="submit" class="btn btn-primary" (click)="onAddUser()">Create User</button>
+      </form>
     </div>
   </div>
-  
-  <footer class="bg-dark text-white text-center py-3 mt-5">
-    <p>&copy; 2024 User Management System</p>
-  </footer>
-  
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div
-      id="liveToast"
-      class="toast"
-      role="alert"
-      aria-live="assertive"
-      aria-atomic="true"
-    >
-      <div class="toast-header">
-        <img src="..." class="rounded me-2" alt="..." />
-        <strong class="me-auto">Bootstrap</strong>
-        <small>11 mins ago</small>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="toast"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="toast-body">Hello, world! This is a toast message.</div>
-    </div>
-  </div>
+</p-dialog>
+<p-toast key="tst" [preventOpenDuplicates]="true"></p-toast>
